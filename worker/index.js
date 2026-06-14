@@ -62,6 +62,24 @@ async function handleDirections(request, env) {
   });
 }
 
+async function handleMatrix(request, env) {
+  const body = await request.json();
+  const res = await fetch(`${ORS_BASE}/v2/matrix/driving-car`, {
+    method: 'POST',
+    headers: {
+      Authorization: env.ORS_API_KEY,
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify(body),
+  });
+  const responseBody = await res.text();
+  return new Response(responseBody, {
+    status: res.status,
+    headers: { ...corsHeaders(), 'Content-Type': 'application/json' },
+  });
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === 'OPTIONS') {
@@ -82,6 +100,9 @@ export default {
       }
       if (url.pathname === '/directions' && request.method === 'POST') {
         return await handleDirections(request, env);
+      }
+      if (url.pathname === '/matrix' && request.method === 'POST') {
+        return await handleMatrix(request, env);
       }
       return json({ error: 'Not found' }, 404);
     } catch (err) {

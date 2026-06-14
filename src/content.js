@@ -1,5 +1,5 @@
 import { loadConfig, resolveSelectors, getApiKey } from './config.js';
-import { geocode, fetchRoute } from './api.js';
+import { geocode, fetchRoute, fetchMatrix } from './api.js';
 import { setLoading, setResult, setError, appendBadge } from './render.js';
 import { readText, parseCoords, parseExistingDistance, fmtDuration, fmtDistance, haversineKm } from './utils.js';
 import * as cache from './cache.js';
@@ -63,60 +63,103 @@ async function processGroup(originEl, destEl, outputEl, proxyUrl, units) {
   }
 }
 
-// ── Load mode ─────────────────────────────────────────────────────────────
+// ── Load mode (batched) ───────────────────────────────────────────────────
 
-async function processLoadGroup(
-  originEl, loadOriginEl, loadDestEl,
-  distToLoadOriginEl, loadDistEl,
-  proxyUrl, selectors
-) {
-  const originText   = readText(originEl);
-  const loadOrigText = readText(loadOriginEl);
-  const loadDestText = readText(loadDestEl);
-  if (!originText || !loadOrigText || !loadDestText) return;
+async function processBatchLoads(pending, originText, originCoords, proxyUrl, apiKey, selectors) {
+  const { units, loadDistanceThreshold } = selectors;
 
-  distToLoadOriginEl.dataset.rdcState = 'loading';
+  // Geocode all load addresses in parallel; settle individually so one bad
+  // address doesn't abort the whole batch.
+  const geoResults = await Promise.allSettled([
+    ...pending.map(c => resolveCoords(c.origText, proxyUrl, apiKey)),
+    ...pending.map(c => resolveCoords(c.destText, proxyUrl, apiKey)),
+  ]);
 
-  try {
-    const apiKey = await resolveAuth(proxyUrl);
-    const { units, loadDistanceThreshold } = selectors;
+  const n = pending.length;
+  const cards = pending.map((card, i) => {
+    const og = geoResults[i];
+    const dg = geoResults[n + i];
+    if (og.status === 'rejected' || dg.status === 'rejected') {
+      setError(card.distEl, (og.reason ?? dg.reason)?.message ?? 'Address not found');
+      return null;
+    }
+    return { ...card, loadOrigCoords: og.value, loadDestCoords: dg.value };
+  }).filter(Boolean);
 
-    const [originCoords, loadOrigCoords, loadDestCoords] = await Promise.all([
-      resolveCoords(originText, proxyUrl, apiKey),
-      resolveCoords(loadOrigText, proxyUrl, apiKey),
-      resolveCoords(loadDestText, proxyUrl, apiKey),
-    ]);
+  if (!cards.length) return;
 
-    const [toLoadOrig, loadRoute] = await Promise.all([
-      cachedRoute(originText, loadOrigText, originCoords, loadOrigCoords, proxyUrl, apiKey, units),
-      cachedRoute(loadOrigText, loadDestText, loadOrigCoords, loadDestCoords, proxyUrl, apiKey, units),
-    ]);
+  // Split into cached vs needs-API, applying haversine guard.
+  const deadheadCache = cards.map(c => cache.get(`route:${originText}|${c.origText}|${units}`));
+  const loadDistCache = cards.map(c => cache.get(`route:${c.origText}|${c.destText}|${units}`));
 
-    // Always write origin → loadOrigin distance.
-    appendBadge(
-      distToLoadOriginEl,
-      `${fmtDistance(toLoadOrig.distance, units)} · ~${fmtDuration(toLoadOrig.duration)}`,
-      'highlight'
+  const dhNeeded  = cards.map((c, i) => !deadheadCache[i] && haversineKm(originCoords, c.loadOrigCoords) <= 5500);
+  const ldNeeded  = cards.map((c, i) => !loadDistCache[i]  && haversineKm(c.loadOrigCoords, c.loadDestCoords) <= 5500);
+  const dhIndices = dhNeeded.reduce((a, v, i) => (v ? [...a, i] : a), []);
+  const ldIndices = ldNeeded.reduce((a, v, i) => (v ? [...a, i] : a), []);
+
+  // Deadhead matrix: 1 origin → N loadOrigins (one HTTP call).
+  const deadheadResults = [...deadheadCache];
+  if (dhIndices.length) {
+    const locs = [originCoords, ...dhIndices.map(i => cards[i].loadOrigCoords)];
+    const { distances, durations } = await fetchMatrix(
+      locs, [0], dhIndices.map((_, j) => j + 1), proxyUrl, apiKey, units
     );
-    distToLoadOriginEl.dataset.rdcState = 'done';
+    dhIndices.forEach((cardIdx, j) => {
+      if (distances[0][j] == null) return;
+      const r = { distance: distances[0][j], duration: durations[0][j] };
+      deadheadResults[cardIdx] = r;
+      cache.set(`route:${originText}|${cards[cardIdx].origText}|${units}`, r);
+    });
+  }
 
-    // Only correct loadDistance if the difference exceeds the threshold.
-    if (loadDistEl) {
-      const existing = parseExistingDistance(readText(loadDistEl));
-      const diff = existing !== null ? Math.abs(loadRoute.distance - existing) : Infinity;
+  // Load-distance matrix: N loadOrigins → N loadDests (one HTTP call, diagonal).
+  const loadDistResults = [...loadDistCache];
+  if (ldIndices.length === 1) {
+    const i = ldIndices[0];
+    const r = await fetchRoute(cards[i].loadOrigCoords, cards[i].loadDestCoords, proxyUrl, apiKey, units);
+    loadDistResults[i] = r;
+    cache.set(`route:${cards[i].origText}|${cards[i].destText}|${units}`, r);
+  } else if (ldIndices.length > 1) {
+    const m = ldIndices.length;
+    const locs = [
+      ...ldIndices.map(i => cards[i].loadOrigCoords),
+      ...ldIndices.map(i => cards[i].loadDestCoords),
+    ];
+    const { distances, durations } = await fetchMatrix(
+      locs,
+      ldIndices.map((_, j) => j),
+      ldIndices.map((_, j) => j + m),
+      proxyUrl, apiKey, units
+    );
+    ldIndices.forEach((cardIdx, j) => {
+      if (distances[j][j] == null) return;
+      const r = { distance: distances[j][j], duration: durations[j][j] };
+      loadDistResults[cardIdx] = r;
+      cache.set(`route:${cards[cardIdx].origText}|${cards[cardIdx].destText}|${units}`, r);
+    });
+  }
+
+  // Render.
+  cards.forEach((c, i) => {
+    const dh = deadheadResults[i];
+    if (!dh) {
+      const tooFar = haversineKm(originCoords, c.loadOrigCoords) > 5500;
+      setError(c.distEl, tooFar ? 'Too far to route' : 'No route found');
+      return;
+    }
+    appendBadge(c.distEl, `${fmtDistance(dh.distance, units)} · ~${fmtDuration(dh.duration)}`, 'highlight');
+    c.distEl.dataset.rdcState = 'done';
+
+    const ld = loadDistResults[i];
+    if (c.loadDistEl && ld) {
+      const existing = parseExistingDistance(readText(c.loadDistEl));
+      const diff = existing !== null ? Math.abs(ld.distance - existing) : Infinity;
       if (diff > loadDistanceThreshold) {
-        appendBadge(
-          loadDistEl,
-          `${fmtDistance(loadRoute.distance, units)} · ~${fmtDuration(loadRoute.duration)}`,
-          'warn'
-        );
-        loadDistEl.dataset.rdcState = 'corrected';
+        appendBadge(c.loadDistEl, `${fmtDistance(ld.distance, units)} · ~${fmtDuration(ld.duration)}`, 'warn');
+        c.loadDistEl.dataset.rdcState = 'corrected';
       }
     }
-  } catch (err) {
-    console.error('[RoadDistance]', err);
-    setError(distToLoadOriginEl, err.message || 'Could not calculate route');
-  }
+  });
 }
 
 // ── DOM finding helpers ───────────────────────────────────────────────────
@@ -147,23 +190,38 @@ function findPair(outputEl, originSel, destSel) {
 
 // ── Top-level scan ────────────────────────────────────────────────────────
 
-function findAndProcessLoads(selectors, proxyUrl) {
+async function findAndProcessLoads(selectors, proxyUrl) {
   const originEl = document.querySelector(selectors.origin);
   if (!originEl) return;
 
-  document
-    .querySelectorAll(`${selectors.distanceToLoadOrigin}:not([data-rdc-state])`)
-    .forEach((distEl) => {
-      const loadOriginEl = findInAncestor(distEl, selectors.loadOrigin);
-      const loadDestEl   = findInAncestor(distEl, selectors.loadDestination);
-      const loadDistEl   = selectors.loadDistance
-        ? findInAncestor(distEl, selectors.loadDistance)
-        : null;
+  const pending = [];
+  document.querySelectorAll(`${selectors.distanceToLoadOrigin}:not([data-rdc-state])`).forEach(distEl => {
+    const loadOriginEl = findInAncestor(distEl, selectors.loadOrigin);
+    const loadDestEl   = findInAncestor(distEl, selectors.loadDestination);
+    const loadDistEl   = selectors.loadDistance ? findInAncestor(distEl, selectors.loadDistance) : null;
+    if (loadOriginEl && loadDestEl) {
+      pending.push({
+        distEl, loadDistEl,
+        origText: readText(loadOriginEl),
+        destText: readText(loadDestEl),
+      });
+    }
+  });
+  if (!pending.length) return;
 
-      if (loadOriginEl && loadDestEl) {
-        processLoadGroup(originEl, loadOriginEl, loadDestEl, distEl, loadDistEl, proxyUrl, selectors);
-      }
+  pending.forEach(({ distEl }) => { distEl.dataset.rdcState = 'loading'; });
+
+  try {
+    const apiKey      = await resolveAuth(proxyUrl);
+    const originText  = readText(originEl);
+    const originCoords = await resolveCoords(originText, proxyUrl, apiKey);
+    await processBatchLoads(pending, originText, originCoords, proxyUrl, apiKey, selectors);
+  } catch (err) {
+    console.error('[RoadDistance]', err);
+    pending.forEach(({ distEl }) => {
+      if (distEl.dataset.rdcState === 'loading') setError(distEl, err.message || 'Could not calculate route');
     });
+  }
 }
 
 function findAndProcessSimple(selectors, proxyUrl) {
