@@ -1,7 +1,7 @@
 import { loadConfig, resolveSelectors, getApiKey } from './config.js';
 import { geocode, fetchRoute, fetchMatrix } from './api.js';
 import { setLoading, setResult, setError, appendBadge } from './render.js';
-import { readText, parseCoords, parseExistingDistance, fmtDuration, fmtDistance, haversineKm } from './utils.js';
+import { readText, parseCoords, parseExistingDistance, fmtDuration, fmtDistance, haversineKm, preprocessAddress } from './utils.js';
 import * as cache from './cache.js';
 
 // ── Auth / coords helpers ─────────────────────────────────────────────────
@@ -18,11 +18,12 @@ async function resolveCoords(text, proxyUrl, apiKey) {
   const coords = parseCoords(text);
   if (coords) return coords;
 
-  const hit = cache.get(`geo:${text}`);
+  const normalized = preprocessAddress(text);
+  const hit = cache.get(`geo:${normalized}`);
   if (hit) return hit;
 
-  const result = await geocode(text, proxyUrl, apiKey);
-  cache.set(`geo:${text}`, result, cache.TTL_GEO);
+  const result = await geocode(normalized, proxyUrl, apiKey);
+  cache.set(`geo:${normalized}`, result, cache.TTL_GEO);
   return result;
 }
 

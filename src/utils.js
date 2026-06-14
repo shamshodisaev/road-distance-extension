@@ -1,3 +1,10 @@
+// Strip leading warehouse/facility codes like "TEB4", "BOS5", "ONT8" that
+// prefix Amazon and 3PL addresses on load boards, so the geocoder sees a
+// plain city/state/zip string it can resolve.
+export function preprocessAddress(text) {
+  return text.replace(/^[A-Z]{2,5}\d+\s+/, '').trim();
+}
+
 export function readText(el) {
   return el.tagName === 'INPUT' || el.tagName === 'TEXTAREA'
     ? el.value.trim()
