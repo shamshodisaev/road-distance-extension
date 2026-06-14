@@ -7,7 +7,7 @@
   },
   "rules": [
     {
-      "matches": "https://account.heigit.org/*",
+      "matches": "*",
       "units": "mi",
       "loadDistanceThreshold": 80,
       "origin": ".tab.active span",
