@@ -29,10 +29,12 @@ async function handleGeocode(url, env) {
   const text = url.searchParams.get('text');
   if (!text) return json({ error: 'Missing "text" parameter' }, 400);
 
+  const country = url.searchParams.get('country') || 'USA';
   const orsUrl =
     `${ORS_BASE}/geocode/search` +
     `?api_key=${encodeURIComponent(env.ORS_API_KEY)}` +
-    `&text=${encodeURIComponent(text)}&size=1`;
+    `&text=${encodeURIComponent(text)}&size=1` +
+    `&boundary.country=${encodeURIComponent(country)}`;
 
   const res = await fetch(orsUrl);
   const body = await res.text();

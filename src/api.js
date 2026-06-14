@@ -2,7 +2,7 @@ const ORS_BASE = 'https://api.openrouteservice.org';
 
 export async function geocode(address, proxyUrl, apiKey) {
   const url = proxyUrl
-    ? `${proxyUrl}/geocode?text=${encodeURIComponent(address)}`
+    ? `${proxyUrl}/geocode?text=${encodeURIComponent(address)}&country=USA`
     : `${ORS_BASE}/geocode/search?api_key=${encodeURIComponent(apiKey)}&text=${encodeURIComponent(address)}&size=1`;
   const res = await fetch(url);
   if (!res.ok) {
