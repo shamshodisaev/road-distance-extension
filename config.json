@@ -1,0 +1,20 @@
+{
+  "proxyUrl": "https://road-distance-proxy.abdushamshod.workers.dev",
+  "defaults": {
+    "origin": ".road-distance-origin",
+    "destination": ".road-distance-destination",
+    "output": ".road-distance-output"
+  },
+  "rules": [
+    {
+      "matches": "https://account.heigit.org/*",
+      "units": "mi",
+      "loadDistanceThreshold": 80,
+      "origin": ".tab.active span",
+      "loadOrigin": ".load-card div > div > div:nth-child(2) > span[tabindex=\"0\"] .wo-card-header__components",
+      "loadDestination": ".load-card .css-soq2b7 > div:nth-child(5) span[tabindex] .wo-card-header__components",
+      "distanceToLoadOrigin": ".load-card span:has(+ span[title=\"Deadhead\"])",
+      "loadDistance": ".load-card div > div:nth-child(3) > span[mdn-text]:first-child > .wo-card-header__components"
+    }
+  ]
+}

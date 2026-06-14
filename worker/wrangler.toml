@@ -1,0 +1,15 @@
+name = "road-distance-proxy"
+main = "index.js"
+compatibility_date = "2024-09-23"
+
+# Deploy steps:
+#   1. npx wrangler kv:namespace create RATE_KV
+#      → copy the returned id into kv_namespaces below
+#   2. npx wrangler secret put ORS_API_KEY
+#      → paste your ORS key when prompted (stays server-side, never in extension)
+#   3. npx wrangler deploy
+#   4. Copy the *.workers.dev URL into config.json → "proxyUrl"
+
+[[kv_namespaces]]
+binding = "RATE_KV"
+id = "6dc1db1a086b47899ae990fb0c5be8a0"

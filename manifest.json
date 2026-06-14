@@ -1,0 +1,40 @@
+{
+  "manifest_version": 3,
+  "name": "Road Distance Calculator",
+  "version": "1.0.0",
+  "description": "Calculates driving road distance between locations marked on any web page.",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://api.openrouteservice.org/*",
+    "https://*.workers.dev/*",
+    "<all_urls>"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content.js"],
+      "css": ["src/styles.css"],
+      "run_at": "document_idle",
+      "type": "module"
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["config.json"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
