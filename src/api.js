@@ -11,7 +11,19 @@ export async function geocode(address, proxyUrl, apiKey) {
   }
   const json = await res.json();
   if (!json.features?.length) throw new Error(`Address not found: "${address}"`);
-  return json.features[0].geometry.coordinates; // [lng, lat]
+  const coords = json.features[0].geometry.coordinates; // [lng, lat]
+  assertUSCoords(coords, address);
+  return coords;
+}
+
+function assertUSCoords([lng, lat], address) {
+  const inUS = (
+    (lat >= 24.5 && lat <= 49.5 && lng >= -125   && lng <= -66.9) || // continental
+    (lat >= 51   && lat <= 72   && lng >= -180    && lng <= -130)  || // Alaska
+    (lat >= 18.9 && lat <= 22.2 && lng >= -160.2  && lng <= -154.8)|| // Hawaii
+    (lat >= 17.9 && lat <= 18.5 && lng >= -67.3   && lng <= -65.2)    // Puerto Rico
+  );
+  if (!inUS) throw new Error(`Address not found in USA: "${address}"`);
 }
 
 // locations: array of [lng,lat]; sources/destinations: index arrays into locations.

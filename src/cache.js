@@ -1,4 +1,4 @@
-const PREFIX = 'rdc:';
+const PREFIX = 'rdc2:'; // bumped to invalidate pre-USA-boundary geocoding cache
 const TTL_ROUTE = 30 * 24 * 60 * 60 * 1000; // 30 days — road distances rarely change
 const TTL_GEO   =  7 * 24 * 60 * 60 * 1000; // 7 days  — addresses change slightly more
 
