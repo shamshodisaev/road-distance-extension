@@ -1,7 +1,7 @@
 import { loadConfig, resolveSelectors, getApiKey } from './config.js';
 import { geocode, fetchRoute } from './api.js';
 import { setLoading, setResult, setError, appendBadge } from './render.js';
-import { readText, parseCoords, parseExistingDistance, fmtDuration, fmtDistance } from './utils.js';
+import { readText, parseCoords, parseExistingDistance, fmtDuration, fmtDistance, haversineKm } from './utils.js';
 import * as cache from './cache.js';
 
 // ── Auth / coords helpers ─────────────────────────────────────────────────
@@ -30,6 +30,10 @@ async function cachedRoute(fromText, toText, from, to, proxyUrl, apiKey, units) 
   const k = `route:${fromText}|${toText}|${units}`;
   const hit = cache.get(k);
   if (hit) return hit;
+
+  if (haversineKm(from, to) > 5500) {
+    throw new Error('Locations are too far apart for routing (>6000 km)');
+  }
 
   const result = await fetchRoute(from, to, proxyUrl, apiKey, units);
   cache.set(k, result);

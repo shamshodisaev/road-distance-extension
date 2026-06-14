@@ -16,6 +16,16 @@ export function parseExistingDistance(text) {
   return m ? parseFloat(m[1]) : null;
 }
 
+// Straight-line distance in km between two ORS [lng, lat] coordinate pairs.
+export function haversineKm([lng1, lat1], [lng2, lat2]) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 export function fmtDuration(sec) {
   const h = Math.floor(sec / 3600);
   const m = Math.floor((sec % 3600) / 60);
