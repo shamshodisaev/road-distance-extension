@@ -80,10 +80,50 @@ async function handleMatrix(request, env) {
   });
 }
 
+async function handleRegister(request, env) {
+  const { device_id, email, company, version } = await request.json();
+  if (!device_id || !email) return json({ error: 'device_id and email are required' }, 400);
+
+  const now = Date.now();
+  await env.DB.prepare(
+    `INSERT INTO users (device_id, email, company, version, installed_at, last_seen)
+     VALUES (?, ?, ?, ?, ?, ?)
+     ON CONFLICT(device_id) DO UPDATE SET email=excluded.email, company=excluded.company,
+       version=excluded.version, last_seen=excluded.last_seen`
+  ).bind(device_id, email.trim().toLowerCase(), company?.trim() || null, version || null, now, now).run();
+
+  return json({ ok: true });
+}
+
+async function handlePing(request, env) {
+  const { device_id, version } = await request.json();
+  if (!device_id) return json({ error: 'device_id required' }, 400);
+
+  await env.DB.prepare(
+    `UPDATE users SET last_seen=?, version=? WHERE device_id=?`
+  ).bind(Date.now(), version || null, device_id).run();
+
+  return json({ ok: true });
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === 'OPTIONS') {
       return new Response(null, { headers: corsHeaders() });
+    }
+
+    const url = new URL(request.url);
+
+    // Registration and ping are exempt from rate limiting.
+    try {
+      if (url.pathname === '/register' && request.method === 'POST') {
+        return await handleRegister(request, env);
+      }
+      if (url.pathname === '/ping' && request.method === 'POST') {
+        return await handlePing(request, env);
+      }
+    } catch (err) {
+      return json({ error: err.message || 'Server error' }, 500);
     }
 
     const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
@@ -91,8 +131,6 @@ export default {
     if (!allowed) {
       return json({ error: 'Rate limit exceeded. Try again later.' }, 429);
     }
-
-    const url = new URL(request.url);
 
     try {
       if (url.pathname === '/geocode' && request.method === 'GET') {

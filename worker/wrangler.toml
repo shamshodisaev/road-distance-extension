@@ -13,3 +13,8 @@ compatibility_date = "2024-09-23"
 [[kv_namespaces]]
 binding = "RATE_KV"
 id = "6dc1db1a086b47899ae990fb0c5be8a0"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "road-distance-users"
+database_id = "a815a37f-e115-4c0e-a182-2f7cb3ec0a44"

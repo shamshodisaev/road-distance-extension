@@ -3,7 +3,8 @@
   "name": "Road Distance Calculator",
   "version": "1.0.0",
   "description": "Calculates driving road distance between locations marked on any web page.",
-  "permissions": ["storage"],
+  "permissions": ["storage", "tabs"],
+  "background": { "service_worker": "background.js" },
   "host_permissions": [
     "https://api.openrouteservice.org/*",
     "https://*.workers.dev/*",
@@ -32,7 +33,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["config.json"],
+      "resources": ["config.json", "registration.html", "registration.js"],
       "matches": ["<all_urls>", "file://*/*"]
     }
   ]

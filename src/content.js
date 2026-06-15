@@ -254,6 +254,9 @@ function findAndProcess(selectors, proxyUrl) {
 // ── Bootstrap ─────────────────────────────────────────────────────────────
 
 async function init() {
+  const { registered } = await chrome.storage.local.get('registered');
+  if (!registered) return;
+
   const config = await loadConfig();
   const selectors = resolveSelectors(config);
   const proxyUrl = (config.proxyUrl || '').trim() || null;

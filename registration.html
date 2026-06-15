@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Road Distance Calculator — Setup</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f8f9fa;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 15px;
+      color: #212529;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.10);
+      padding: 40px 36px 36px;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 0 0 6px;
+    }
+
+    .sub {
+      color: #6c757d;
+      font-size: 13px;
+      margin: 0 0 28px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #495057;
+    }
+
+    input[type="email"],
+    input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ced4da;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #212529;
+      background: #f8f9fa;
+      transition: border-color 0.15s, background 0.15s;
+      margin-bottom: 16px;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #0d6efd;
+      background: #fff;
+    }
+
+    button {
+      width: 100%;
+      padding: 11px;
+      background: #0d6efd;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-top: 4px;
+    }
+
+    button:hover:not(:disabled) { background: #0b5ed7; }
+    button:disabled { opacity: 0.6; cursor: default; }
+
+    .error {
+      margin-top: 10px;
+      font-size: 13px;
+      color: #dc3545;
+      text-align: center;
+      min-height: 18px;
+    }
+
+    .success {
+      text-align: center;
+      padding: 20px 0 8px;
+    }
+
+    .success .icon {
+      font-size: 48px;
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+
+    .success h2 {
+      margin: 0 0 8px;
+      font-size: 20px;
+    }
+
+    .success p {
+      margin: 0;
+      color: #6c757d;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div id="form-view">
+      <div class="logo">Road Distance Calculator</div>
+      <p class="sub">Quick setup to get started — takes 10 seconds.</p>
+
+      <label for="email">Work email <span style="color:#dc3545">*</span></label>
+      <input type="email" id="email" placeholder="you@company.com" autocomplete="email" required />
+
+      <label for="company">Company <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+      <input type="text" id="company" placeholder="Acme Freight" autocomplete="organization" />
+
+      <button id="submit-btn">Get started</button>
+      <div class="error" id="error"></div>
+    </div>
+
+    <div id="success-view" style="display:none" class="success">
+      <div class="icon">&#10003;</div>
+      <h2>You're all set!</h2>
+      <p>Road Distance Calculator is ready to use.<br />You can close this tab.</p>
+    </div>
+  </div>
+
+  <script src="registration.js"></script>
+</body>
+</html>
