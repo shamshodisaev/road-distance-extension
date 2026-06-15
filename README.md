@@ -1,4 +1,4 @@
-# Road Distance Calculator — Browser Extension
+# Cursus — Browser Extension
 
 A Chrome extension that calculates driving road distance between locations on any web page and injects results into existing DOM elements. Powered by [OpenRouteService](https://openrouteservice.org/) via a Cloudflare Worker proxy — no API key required for end users.
 
