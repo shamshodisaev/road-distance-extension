@@ -8,106 +8,147 @@
     *, *::before, *::after { box-sizing: border-box; }
 
     body {
-      width: 310px;
-      padding: 18px 16px 16px;
+      width: 280px;
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      font-size: 14px;
-      color: #212529;
-      background: #fff;
-    }
-
-    h1 {
-      margin: 0 0 4px;
-      font-size: 15px;
-      font-weight: 600;
-    }
-
-    .sub {
-      margin: 0 0 16px;
-      font-size: 12px;
-      color: #6c757d;
-    }
-
-    button {
-      margin-top: 10px;
-      width: 100%;
-      padding: 9px;
-      background: #0d6efd;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-
-    button:hover { background: #0b5ed7; }
-    button:active { background: #0a58ca; }
-
-    /* Registration banner */
-    .reg-banner {
-      background: #fff8e1;
-      border: 1px solid #ffd54f;
-      border-radius: 8px;
-      padding: 14px;
-      margin-bottom: 16px;
-    }
-
-    .reg-banner strong {
-      display: block;
-      margin-bottom: 4px;
+      padding: 20px;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       font-size: 13px;
+      color: #e2e8f0;
+      background: #0d1117;
     }
 
-    .reg-banner p {
-      margin: 0 0 10px;
-      font-size: 12px;
-      color: #555;
-      line-height: 1.5;
-    }
-
-    .reg-banner button {
-      margin-top: 0;
-      background: #f59e0b;
-    }
-
-    .reg-banner button:hover { background: #d97706; }
-
-    /* Registered badge */
-    .reg-badge {
+    .header {
       display: flex;
       align-items: center;
-      gap: 6px;
-      font-size: 11px;
-      color: #198754;
-      margin-bottom: 14px;
-      padding: 6px 8px;
-      background: #d1e7dd;
-      border-radius: 6px;
+      gap: 10px;
+      margin-bottom: 20px;
     }
 
-    .reg-badge .check { font-size: 13px; }
+    .logo-mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.5px;
+      flex-shrink: 0;
+    }
+
+    .logo-text {
+      font-size: 15px;
+      font-weight: 700;
+      color: #f1f5f9;
+      letter-spacing: -0.3px;
+    }
+
+    /* Not registered */
+    .setup-card {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .setup-card .title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #f97316;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+
+    .setup-card p {
+      margin: 0 0 14px;
+      font-size: 12px;
+      color: #8b949e;
+      line-height: 1.6;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 9px;
+      border: none;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      color: #fff;
+      letter-spacing: 0.01em;
+    }
+
+    .btn:hover { opacity: 0.88; }
+    .btn:active { transform: scale(0.98); }
+
+    /* Registered */
+    .registered-card {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 6px #22c55e99;
+      flex-shrink: 0;
+    }
+
+    .reg-info {
+      min-width: 0;
+    }
+
+    .reg-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #22c55e;
+      margin-bottom: 2px;
+    }
+
+    .reg-email {
+      font-size: 12px;
+      color: #8b949e;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   </style>
 </head>
 <body>
-  <h1>Cursus</h1>
-  <p class="sub">Powered by OpenRouteService</p>
+  <div class="header">
+    <div class="logo-mark">C</div>
+    <span class="logo-text">Cursus</span>
+  </div>
 
-  <!-- Shown when not registered -->
-  <div id="reg-banner" class="reg-banner" style="display:none">
-    <strong>Setup required</strong>
+  <div id="reg-banner" class="setup-card" style="display:none">
+    <div class="title">Setup required</div>
     <p>Complete a quick one-time registration to activate the extension.</p>
-    <button id="open-reg">Complete setup</button>
+    <button id="open-reg" class="btn">Complete setup</button>
   </div>
 
-  <!-- Shown when registered -->
-  <div id="reg-badge" class="reg-badge" style="display:none">
-    <span class="check">&#10003;</span>
-    <span id="reg-email"></span>
+  <div id="reg-badge" class="registered-card" style="display:none">
+    <div class="status-dot"></div>
+    <div class="reg-info">
+      <div class="reg-label">Active</div>
+      <div class="reg-email" id="reg-email"></div>
+    </div>
   </div>
-
 
   <script src="popup.js"></script>
 </body>

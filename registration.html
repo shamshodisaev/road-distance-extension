@@ -13,130 +13,187 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #f8f9fa;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      font-size: 15px;
-      color: #212529;
+      background: #0d1117;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 14px;
+      color: #e2e8f0;
     }
 
     .card {
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 2px 16px rgba(0,0,0,0.10);
-      padding: 40px 36px 36px;
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 14px;
+      padding: 44px 40px 40px;
       width: 100%;
-      max-width: 420px;
+      max-width: 400px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
     }
 
     .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .logo-mark {
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.5px;
+      flex-shrink: 0;
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: 700;
+      color: #f1f5f9;
+      letter-spacing: -0.4px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
       font-size: 22px;
       font-weight: 700;
-      margin: 0 0 6px;
+      color: #f1f5f9;
+      letter-spacing: -0.4px;
     }
 
     .sub {
-      color: #6c757d;
-      font-size: 13px;
       margin: 0 0 28px;
+      font-size: 13px;
+      color: #8b949e;
+      line-height: 1.6;
     }
 
     label {
       display: block;
-      margin-bottom: 5px;
+      margin-bottom: 6px;
       font-size: 11px;
-      font-weight: 700;
+      font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.07em;
-      color: #495057;
+      letter-spacing: 0.08em;
+      color: #8b949e;
     }
 
     input[type="email"],
     input[type="text"] {
       width: 100%;
-      padding: 10px 12px;
-      border: 1px solid #ced4da;
+      padding: 11px 14px;
+      border: 1px solid #30363d;
       border-radius: 8px;
       font-size: 14px;
-      color: #212529;
-      background: #f8f9fa;
-      transition: border-color 0.15s, background 0.15s;
-      margin-bottom: 16px;
+      font-family: inherit;
+      color: #e2e8f0;
+      background: #0d1117;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      margin-bottom: 18px;
+      outline: none;
     }
+
+    input::placeholder { color: #484f58; }
 
     input:focus {
-      outline: none;
-      border-color: #0d6efd;
-      background: #fff;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
     }
 
-    button {
+    .btn {
       width: 100%;
-      padding: 11px;
-      background: #0d6efd;
-      color: #fff;
+      padding: 12px;
       border: none;
       border-radius: 8px;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 600;
+      font-family: inherit;
       cursor: pointer;
-      transition: background 0.15s;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      color: #fff;
+      transition: opacity 0.15s, transform 0.1s;
       margin-top: 4px;
+      letter-spacing: 0.01em;
     }
 
-    button:hover:not(:disabled) { background: #0b5ed7; }
-    button:disabled { opacity: 0.6; cursor: default; }
+    .btn:hover:not(:disabled) { opacity: 0.88; }
+    .btn:active:not(:disabled) { transform: scale(0.99); }
+    .btn:disabled { opacity: 0.45; cursor: default; }
 
     .error {
-      margin-top: 10px;
-      font-size: 13px;
-      color: #dc3545;
+      margin-top: 12px;
+      font-size: 12px;
+      color: #f87171;
       text-align: center;
       min-height: 18px;
     }
 
+    /* Success */
     .success {
       text-align: center;
-      padding: 20px 0 8px;
+      padding: 12px 0 4px;
     }
 
-    .success .icon {
-      font-size: 48px;
-      line-height: 1;
-      margin-bottom: 12px;
+    .success-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(34,197,94,0.12);
+      border: 1.5px solid rgba(34,197,94,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 24px;
+      color: #22c55e;
     }
 
     .success h2 {
       margin: 0 0 8px;
       font-size: 20px;
+      font-weight: 700;
+      color: #f1f5f9;
+      letter-spacing: -0.3px;
     }
 
     .success p {
       margin: 0;
-      color: #6c757d;
+      color: #8b949e;
       font-size: 13px;
+      line-height: 1.6;
     }
   </style>
 </head>
 <body>
   <div class="card">
-    <div id="form-view">
-      <div class="logo">Cursus</div>
-      <p class="sub">Quick setup to get started — takes 10 seconds.</p>
+    <div class="logo">
+      <div class="logo-mark">C</div>
+      <span class="logo-text">Cursus</span>
+    </div>
 
-      <label for="email">Work email <span style="color:#dc3545">*</span></label>
+    <div id="form-view">
+      <h1>Get started</h1>
+      <p class="sub">One-time setup to activate the extension.</p>
+
+      <label for="email">Work email <span style="color:#f87171">*</span></label>
       <input type="email" id="email" placeholder="you@mail.com" autocomplete="email" required />
 
-      <label for="company">Company <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+      <label for="company">Company <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#484f58">(optional)</span></label>
       <input type="text" id="company" placeholder="Acme Freight" autocomplete="organization" />
 
-      <button id="submit-btn">Get started</button>
+      <button id="submit-btn" class="btn">Activate Cursus</button>
       <div class="error" id="error"></div>
     </div>
 
     <div id="success-view" style="display:none" class="success">
-      <div class="icon">&#10003;</div>
-      <h2>You're all set!</h2>
-      <p>Cursus is ready to use.<br />You can close this tab.</p>
+      <div class="success-icon">&#10003;</div>
+      <h2>You're all set</h2>
+      <p>Cursus is active and ready.<br />You can close this tab.</p>
     </div>
   </div>
 
