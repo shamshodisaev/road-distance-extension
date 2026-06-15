@@ -62,5 +62,6 @@ export function resolveSelectors(config) {
     loadDistance:         validated(r.loadDistance         || defaults.loadDistance,         null),
     units:                r.units                ?? defaults.units,
     loadDistanceThreshold: r.loadDistanceThreshold ?? defaults.loadDistanceThreshold,
+    autoClickSelector:    r.autoClickSelector || config.defaults?.autoClickSelector || null,
   };
 }

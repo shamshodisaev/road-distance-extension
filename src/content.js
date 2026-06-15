@@ -274,6 +274,46 @@ async function init() {
     clearTimeout(debounce);
     debounce = setTimeout(run, 400);
   }).observe(document.body, { childList: true, subtree: true });
+
+  // ── Auto-clicker ─────────────────────────────────────────────────────────
+
+  const { autoClickSelector } = selectors;
+  let autoClickTimer = null;
+
+  function startAutoClick(intervalSec) {
+    clearInterval(autoClickTimer);
+    autoClickTimer = setInterval(() => {
+      document.querySelector(autoClickSelector)?.click();
+    }, intervalSec * 1000);
+  }
+
+  function stopAutoClick() {
+    clearInterval(autoClickTimer);
+    autoClickTimer = null;
+  }
+
+  if (autoClickSelector) {
+    chrome.storage.local.get(['autoClickEnabled', 'autoClickInterval'], ({ autoClickEnabled, autoClickInterval }) => {
+      if (autoClickEnabled) startAutoClick(autoClickInterval ?? 2);
+    });
+
+    chrome.storage.onChanged.addListener((changes, area) => {
+      if (area !== 'local') return;
+      const { autoClickEnabled, autoClickInterval } = changes;
+
+      if (autoClickEnabled?.newValue === false) {
+        stopAutoClick();
+      } else if (autoClickEnabled?.newValue === true) {
+        chrome.storage.local.get('autoClickInterval', ({ autoClickInterval }) => {
+          startAutoClick(autoClickInterval ?? 2);
+        });
+      } else if (autoClickInterval !== undefined) {
+        chrome.storage.local.get('autoClickEnabled', ({ autoClickEnabled }) => {
+          if (autoClickEnabled) startAutoClick(autoClickInterval.newValue);
+        });
+      }
+    });
+  }
 }
 
 init();
