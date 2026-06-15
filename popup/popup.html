@@ -46,6 +46,46 @@
       letter-spacing: -0.3px;
     }
 
+    /* Description */
+    .description {
+      margin-bottom: 16px;
+      padding: 14px;
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+    }
+
+    .description p {
+      margin: 0 0 10px;
+      font-size: 12px;
+      color: #8b949e;
+      line-height: 1.65;
+    }
+
+    .description strong { color: #e2e8f0; font-weight: 600; }
+
+    .description ul {
+      margin: 0;
+      padding-left: 16px;
+      list-style: none;
+    }
+
+    .description ul li {
+      font-size: 11px;
+      color: #6e7681;
+      line-height: 1.8;
+      position: relative;
+      padding-left: 4px;
+    }
+
+    .description ul li::before {
+      content: '—';
+      position: absolute;
+      left: -14px;
+      color: #3b82f6;
+      font-size: 10px;
+    }
+
     /* Not registered */
     .setup-card {
       background: #161b22;
@@ -223,6 +263,15 @@
     <span class="logo-text">Cursus</span>
   </div>
 
+  <div class="description">
+    <p>Cursus enhances your <strong>Amazon Relay</strong> load board experience by automatically verifying road distances on load cards and keeping the board fresh with a configurable auto-refresh.</p>
+    <ul>
+      <li>Recalculates deadhead &amp; load distances</li>
+      <li>Flags mismatched distances with corrections</li>
+      <li>Auto-refreshes the board at your set interval</li>
+    </ul>
+  </div>
+
   <!-- Shown when not registered -->
   <div id="reg-banner" class="setup-card" style="display:none">
     <div class="title">Setup required</div>
@@ -244,7 +293,7 @@
 
     <div class="panel-row">
       <div class="panel-left">
-        <span class="panel-title">Auto-clicker</span>
+        <span class="panel-title">Auto refresh board</span>
         <span class="panel-sub" id="interval-display">2.0s</span>
       </div>
       <label class="toggle">
