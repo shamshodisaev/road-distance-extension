@@ -14,7 +14,8 @@
       "loadOrigin": ".load-card div > div > div:nth-child(2) > span[tabindex=\"0\"] .wo-card-header__components",
       "loadDestination": ".load-card .css-soq2b7 > div:nth-child(5) span[tabindex] .wo-card-header__components",
       "distanceToLoadOrigin": ".load-card span:has(+ span[title=\"Deadhead\"])",
-      "loadDistance": ".load-card div > div:nth-child(3) > span[mdn-text]:first-child > .wo-card-header__components"
+      "loadDistance": ".load-card div > div:nth-child(3) > span[mdn-text]:first-child > .wo-card-header__components",
+      "autoClickSelector": "#utility-bar .refresh-and-chat-box button"
     }
   ]
 }
