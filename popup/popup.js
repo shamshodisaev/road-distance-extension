@@ -7,20 +7,33 @@ const openRegBtn     = document.getElementById('open-reg');
 const toggle         = document.getElementById('auto-click-toggle');
 const range          = document.getElementById('interval-range');
 const display        = document.getElementById('interval-display');
+const paymentBanner  = document.getElementById('payment-banner');
+const payBtn         = document.getElementById('pay-btn');
 
-chrome.storage.local.get(['registered', 'email', 'autoClickEnabled', 'autoClickInterval'], (data) => {
-  if (data.registered) {
-    registeredView.style.display = '';
-    regEmailEl.textContent = data.email || 'Registered';
+chrome.storage.local.get(
+  ['registered', 'email', 'autoClickEnabled', 'autoClickInterval', 'paymentRequired', 'checkoutUrl'],
+  (data) => {
+    if (data.registered) {
+      registeredView.style.display = '';
+      regEmailEl.textContent = data.email || 'Registered';
 
-    toggle.checked = !!data.autoClickEnabled;
-    const interval = data.autoClickInterval ?? 2;
-    range.value = interval;
-    display.textContent = `${parseFloat(interval).toFixed(1)}s`;
-  } else {
-    regBanner.style.display = '';
+      toggle.checked = !!data.autoClickEnabled;
+      const interval = data.autoClickInterval ?? 2;
+      range.value = interval;
+      display.textContent = `${parseFloat(interval).toFixed(1)}s`;
+
+      if (data.paymentRequired && data.checkoutUrl) {
+        paymentBanner.style.display = '';
+        payBtn.addEventListener('click', () => {
+          chrome.tabs.create({ url: data.checkoutUrl });
+          window.close();
+        });
+      }
+    } else {
+      regBanner.style.display = '';
+    }
   }
-});
+);
 
 openRegBtn.addEventListener('click', () => {
   chrome.tabs.create({ url: chrome.runtime.getURL('registration.html') });

@@ -174,6 +174,48 @@
       margin: 16px 0;
     }
 
+    /* Payment banner */
+    .payment-banner {
+      background: rgba(251,191,36,0.06);
+      border: 1px solid rgba(251,191,36,0.2);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+    }
+
+    .payment-banner-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #fbbf24;
+      margin-bottom: 4px;
+    }
+
+    .payment-banner p {
+      margin: 0 0 10px;
+      font-size: 11px;
+      color: #8b949e;
+      line-height: 1.55;
+    }
+
+    .btn-pay {
+      display: block;
+      width: 100%;
+      padding: 8px;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(135deg, #d97706, #fbbf24);
+      color: #0d1117;
+      letter-spacing: 0.01em;
+      transition: opacity 0.15s;
+    }
+
+    .btn-pay:hover { opacity: 0.88; }
+
     /* Auto-clicker panel */
     .panel-row {
       display: flex;
@@ -287,6 +329,13 @@
         <div class="reg-label">Active</div>
         <div class="reg-email" id="reg-email"></div>
       </div>
+    </div>
+
+    <!-- Payment banner — shown only when payment is requested by admin -->
+    <div id="payment-banner" class="payment-banner" style="display:none;margin-top:14px">
+      <div class="payment-banner-title">Subscription required</div>
+      <p>Activate your Cursus Pro plan to keep using distance verification and auto-refresh.</p>
+      <button id="pay-btn" class="btn-pay">Pay now — activate Pro</button>
     </div>
 
     <div class="divider"></div>

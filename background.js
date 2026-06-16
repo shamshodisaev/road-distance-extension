@@ -32,5 +32,12 @@ chrome.runtime.onStartup.addListener(async () => {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ device_id: deviceId, version: manifest.version }),
+  }).then(r => r.ok ? r.json() : null).then(data => {
+    if (!data) return;
+    chrome.storage.local.set({
+      plan: data.plan ?? 'free',
+      paymentRequired: data.payment_required ?? false,
+      checkoutUrl: data.checkout_url ?? null,
+    });
   }).catch(() => {});
 });

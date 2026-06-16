@@ -6,9 +6,12 @@ compatibility_date = "2024-09-23"
 #   1. npx wrangler kv:namespace create RATE_KV
 #      → copy the returned id into kv_namespaces below
 #   2. npx wrangler secret put ORS_API_KEY
-#      → paste your ORS key when prompted (stays server-side, never in extension)
-#   3. npx wrangler deploy
-#   4. Copy the *.workers.dev URL into config.json → "proxyUrl"
+#   3. npx wrangler secret put ADMIN_SECRET      ← random string, used by admin dashboard
+#   4. npx wrangler secret put STRIPE_SECRET_KEY ← sk_live_… from Stripe dashboard
+#   5. npx wrangler secret put STRIPE_WEBHOOK_SECRET ← from Stripe webhook settings
+#   6. npx wrangler secret put STRIPE_PRICE_ID   ← price_… monthly price ID
+#   7. npx wrangler deploy
+#   8. Copy the *.workers.dev URL into config.json → "proxyUrl"
 
 [[kv_namespaces]]
 binding = "RATE_KV"

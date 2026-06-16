@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cursus Admin</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #0d1117;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 13px;
+      color: #e2e8f0;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 28px;
+      border-bottom: 1px solid #21262d;
+      background: #0d1117;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .logo-text {
+      font-size: 15px;
+      font-weight: 700;
+      color: #f1f5f9;
+      letter-spacing: -0.3px;
+    }
+
+    .logo-badge {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #6366f1;
+      background: rgba(99,102,241,0.12);
+      border: 1px solid rgba(99,102,241,0.25);
+      border-radius: 4px;
+      padding: 2px 6px;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 4px;
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 3px;
+    }
+
+    .filter-tab {
+      padding: 5px 12px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #6e7681;
+      cursor: pointer;
+      border: none;
+      background: none;
+      transition: all 0.15s;
+    }
+
+    .filter-tab.active {
+      background: #21262d;
+      color: #e2e8f0;
+    }
+
+    .refresh-btn {
+      padding: 6px 14px;
+      border: 1px solid #21262d;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #8b949e;
+      background: #161b22;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .refresh-btn:hover { border-color: #30363d; color: #e2e8f0; }
+
+    .main { padding: 24px 28px; }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #6e7681;
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 26px;
+      font-weight: 700;
+      color: #f1f5f9;
+      letter-spacing: -0.5px;
+    }
+
+    .stat-value.green { color: #22c55e; }
+    .stat-value.blue  { color: #3b82f6; }
+
+    .table-wrap {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead th {
+      padding: 10px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #6e7681;
+      border-bottom: 1px solid #21262d;
+      background: #0d1117;
+      white-space: nowrap;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #161b22;
+      transition: background 0.1s;
+    }
+
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #1c2128; }
+
+    td {
+      padding: 12px 16px;
+      color: #c9d1d9;
+      font-size: 12px;
+      vertical-align: middle;
+    }
+
+    .email-cell { font-weight: 500; color: #e2e8f0; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .company-cell { color: #8b949e; }
+    .muted { color: #484f58; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .badge-pro {
+      background: rgba(34,197,94,0.1);
+      border: 1px solid rgba(34,197,94,0.25);
+      color: #22c55e;
+    }
+
+    .badge-free {
+      background: rgba(110,118,129,0.1);
+      border: 1px solid rgba(110,118,129,0.2);
+      color: #6e7681;
+    }
+
+    .badge-pending {
+      background: rgba(251,191,36,0.1);
+      border: 1px solid rgba(251,191,36,0.25);
+      color: #fbbf24;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot-green { background: #22c55e; box-shadow: 0 0 4px #22c55e88; }
+    .dot-muted  { background: #30363d; }
+    .dot-yellow { background: #fbbf24; }
+
+    .action-btn {
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid #21262d;
+      background: #21262d;
+      color: #c9d1d9;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .action-btn:hover:not(:disabled) {
+      background: #3b82f6;
+      border-color: #3b82f6;
+      color: #fff;
+    }
+
+    .action-btn:disabled { opacity: 0.4; cursor: default; }
+
+    .action-btn.pending-btn {
+      border-color: rgba(251,191,36,0.3);
+      color: #fbbf24;
+    }
+
+    .action-btn.pending-btn:hover:not(:disabled) {
+      background: rgba(251,191,36,0.15);
+      border-color: #fbbf24;
+    }
+
+    .checkout-link {
+      font-size: 11px;
+      color: #3b82f6;
+      text-decoration: none;
+      border: 1px solid rgba(59,130,246,0.25);
+      border-radius: 5px;
+      padding: 3px 8px;
+      display: inline-block;
+    }
+
+    .checkout-link:hover { background: rgba(59,130,246,0.08); }
+
+    /* Auth screen */
+    #auth-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .auth-card {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 14px;
+      padding: 40px;
+      width: 320px;
+    }
+
+    .auth-card h1 {
+      margin: 0 0 6px;
+      font-size: 18px;
+      font-weight: 700;
+      color: #f1f5f9;
+    }
+
+    .auth-card p {
+      margin: 0 0 20px;
+      font-size: 12px;
+      color: #8b949e;
+    }
+
+    .auth-card input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #30363d;
+      border-radius: 7px;
+      background: #0d1117;
+      color: #e2e8f0;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      margin-bottom: 12px;
+    }
+
+    .auth-card input:focus { border-color: #3b82f6; }
+
+    .auth-submit {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 7px;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .auth-error {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #f87171;
+      text-align: center;
+      min-height: 16px;
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+      z-index: 100;
+      max-width: 340px;
+    }
+
+    #toast.show { opacity: 1; }
+    #toast.success { background: #162312; border: 1px solid rgba(34,197,94,0.3); color: #22c55e; }
+    #toast.error   { background: #1a0a0a; border: 1px solid rgba(248,113,113,0.3); color: #f87171; }
+
+    .empty { padding: 48px; text-align: center; color: #484f58; }
+
+    #app { display: none; }
+  </style>
+</head>
+<body>
+
+<!-- Auth screen -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="logo" style="margin-bottom:24px">
+      <div class="logo-mark">C</div>
+      <span class="logo-text">Cursus</span>
+      <span class="logo-badge">Admin</span>
+    </div>
+    <h1>Sign in</h1>
+    <p>Enter your admin secret to access the dashboard.</p>
+    <input type="password" id="secret-input" placeholder="Admin secret" />
+    <button class="auth-submit" id="auth-btn">Continue</button>
+    <div class="auth-error" id="auth-error"></div>
+  </div>
+</div>
+
+<!-- Main app -->
+<div id="app">
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-mark">C</div>
+      <span class="logo-text">Cursus</span>
+      <span class="logo-badge">Admin</span>
+    </div>
+    <div class="topbar-right">
+      <div class="filter-tabs">
+        <button class="filter-tab active" data-filter="all">All</button>
+        <button class="filter-tab" data-filter="pro">Pro</button>
+        <button class="filter-tab" data-filter="free">Free</button>
+        <button class="filter-tab" data-filter="pending">Pending</button>
+      </div>
+      <button class="refresh-btn" id="reload-btn">Refresh</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Total users</div>
+        <div class="stat-value" id="stat-total">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pro</div>
+        <div class="stat-value green" id="stat-pro">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Free</div>
+        <div class="stat-value" id="stat-free">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pending payment</div>
+        <div class="stat-value blue" id="stat-pending">—</div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Company</th>
+            <th>Plan</th>
+            <th>Registered</th>
+            <th>Last seen</th>
+            <th>Paid at</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="users-tbody">
+          <tr><td colspan="7" class="empty">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  const WORKER = 'https://road-distance-proxy.abdushamshod.workers.dev';
+
+  let adminSecret = sessionStorage.getItem('cursus_admin_secret') || '';
+  let allUsers = [];
+  let activeFilter = 'all';
+
+  // ── Auth ────────────────────────────────────────────────────────────────
+
+  async function tryAuth(secret) {
+    const res = await fetch(`${WORKER}/admin/users`, {
+      headers: { Authorization: `Bearer ${secret}` },
+    });
+    return res.ok;
+  }
+
+  document.getElementById('auth-btn').addEventListener('click', async () => {
+    const secret = document.getElementById('secret-input').value.trim();
+    if (!secret) return;
+    document.getElementById('auth-error').textContent = '';
+    document.getElementById('auth-btn').disabled = true;
+    const ok = await tryAuth(secret);
+    document.getElementById('auth-btn').disabled = false;
+    if (ok) {
+      adminSecret = secret;
+      sessionStorage.setItem('cursus_admin_secret', secret);
+      document.getElementById('auth-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      loadUsers();
+    } else {
+      document.getElementById('auth-error').textContent = 'Invalid secret.';
+    }
+  });
+
+  document.getElementById('secret-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('auth-btn').click();
+  });
+
+  // If secret already in sessionStorage, skip auth screen.
+  if (adminSecret) {
+    tryAuth(adminSecret).then(ok => {
+      if (ok) {
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        loadUsers();
+      } else {
+        sessionStorage.removeItem('cursus_admin_secret');
+        adminSecret = '';
+      }
+    });
+  }
+
+  // ── Data ────────────────────────────────────────────────────────────────
+
+  async function loadUsers() {
+    const res = await fetch(`${WORKER}/admin/users`, {
+      headers: { Authorization: `Bearer ${adminSecret}` },
+    });
+    if (!res.ok) { showToast('Failed to load users', 'error'); return; }
+    allUsers = await res.json();
+    updateStats();
+    renderTable();
+  }
+
+  function updateStats() {
+    document.getElementById('stat-total').textContent = allUsers.length;
+    document.getElementById('stat-pro').textContent = allUsers.filter(u => u.plan === 'pro').length;
+    document.getElementById('stat-free').textContent = allUsers.filter(u => u.plan === 'free' && !u.payment_requested_at).length;
+    document.getElementById('stat-pending').textContent = allUsers.filter(u => u.payment_requested_at).length;
+  }
+
+  function filteredUsers() {
+    if (activeFilter === 'pro') return allUsers.filter(u => u.plan === 'pro');
+    if (activeFilter === 'free') return allUsers.filter(u => u.plan === 'free' && !u.payment_requested_at);
+    if (activeFilter === 'pending') return allUsers.filter(u => u.payment_requested_at);
+    return allUsers;
+  }
+
+  function fmtDate(ms) {
+    if (!ms) return '<span class="muted">—</span>';
+    return new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  function fmtRelative(ms) {
+    if (!ms) return '<span class="muted">—</span>';
+    const diff = Date.now() - ms;
+    if (diff < 60000) return 'just now';
+    if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+    if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+    return `${Math.floor(diff / 86400000)}d ago`;
+  }
+
+  function planBadge(user) {
+    if (user.plan === 'pro') {
+      return `<span class="badge badge-pro"><span class="dot dot-green"></span>Pro</span>`;
+    }
+    if (user.payment_requested_at) {
+      return `<span class="badge badge-pending"><span class="dot dot-yellow"></span>Pending</span>`;
+    }
+    return `<span class="badge badge-free"><span class="dot dot-muted"></span>Free</span>`;
+  }
+
+  function renderTable() {
+    const users = filteredUsers();
+    const tbody = document.getElementById('users-tbody');
+    if (!users.length) {
+      tbody.innerHTML = `<tr><td colspan="7" class="empty">No users found</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = users.map(u => `
+      <tr data-device="${u.device_id}">
+        <td class="email-cell" title="${u.email}">${u.email}</td>
+        <td class="company-cell">${u.company || '<span class="muted">—</span>'}</td>
+        <td>${planBadge(u)}</td>
+        <td>${fmtDate(u.installed_at)}</td>
+        <td>${fmtRelative(u.last_seen)}</td>
+        <td>${fmtDate(u.paid_at)}</td>
+        <td>
+          ${u.stripe_checkout_url
+            ? `<a class="checkout-link" href="${u.stripe_checkout_url}" target="_blank" rel="noopener">View link</a>`
+            : `<button class="action-btn ${u.payment_requested_at ? 'pending-btn' : ''}"
+                onclick="requestPayment('${u.device_id}')"
+                ${u.plan === 'pro' ? 'disabled' : ''}>
+                ${u.payment_requested_at ? 'Re-request' : 'Request payment'}
+              </button>`
+          }
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  // ── Actions ─────────────────────────────────────────────────────────────
+
+  async function requestPayment(deviceId) {
+    const btn = document.querySelector(`tr[data-device="${deviceId}"] .action-btn`);
+    if (btn) { btn.disabled = true; btn.textContent = 'Requesting…'; }
+
+    try {
+      const res = await fetch(`${WORKER}/admin/request-payment`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${adminSecret}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ device_id: deviceId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Request failed');
+
+      showToast('Payment request sent. User will see the banner on next popup open.', 'success');
+      await loadUsers();
+    } catch (err) {
+      showToast(err.message, 'error');
+      if (btn) { btn.disabled = false; btn.textContent = 'Request payment'; }
+    }
+  }
+
+  // ── UI helpers ───────────────────────────────────────────────────────────
+
+  document.querySelectorAll('.filter-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      activeFilter = tab.dataset.filter;
+      renderTable();
+    });
+  });
+
+  document.getElementById('reload-btn').addEventListener('click', loadUsers);
+
+  let toastTimer;
+  function showToast(msg, type = 'success') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = `show ${type}`;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.className = ''; }, 4000);
+  }
+</script>
+</body>
+</html>
