@@ -9,13 +9,31 @@ const range          = document.getElementById('interval-range');
 const display        = document.getElementById('interval-display');
 const paymentBanner  = document.getElementById('payment-banner');
 const payBtn         = document.getElementById('pay-btn');
+const enableToggle   = document.getElementById('enable-toggle');
+const enableLabel    = document.getElementById('enable-label');
+const statusDot      = document.getElementById('status-dot');
+const regLabel       = document.getElementById('reg-label');
+const featuresPanel  = document.getElementById('features-panel');
+
+function applyEnabledState(enabled) {
+  enableToggle.checked = enabled;
+  enableLabel.textContent = enabled ? 'On' : 'Off';
+  enableLabel.classList.toggle('on', enabled);
+  statusDot.classList.toggle('off', !enabled);
+  regLabel.textContent = enabled ? 'Active' : 'Paused';
+  regLabel.classList.toggle('off', !enabled);
+  featuresPanel.classList.toggle('panel-disabled', !enabled);
+}
 
 chrome.storage.local.get(
-  ['registered', 'email', 'autoClickEnabled', 'autoClickInterval', 'paymentRequired', 'checkoutUrl'],
+  ['registered', 'email', 'extensionEnabled', 'autoClickEnabled', 'autoClickInterval', 'paymentRequired', 'checkoutUrl'],
   (data) => {
     if (data.registered) {
       registeredView.style.display = '';
       regEmailEl.textContent = data.email || 'Registered';
+
+      const enabled = data.extensionEnabled !== false; // default on
+      applyEnabledState(enabled);
 
       toggle.checked = !!data.autoClickEnabled;
       const interval = data.autoClickInterval ?? 2;
@@ -38,6 +56,12 @@ chrome.storage.local.get(
 openRegBtn.addEventListener('click', () => {
   chrome.tabs.create({ url: chrome.runtime.getURL('registration.html') });
   window.close();
+});
+
+enableToggle.addEventListener('change', () => {
+  const enabled = enableToggle.checked;
+  applyEnabledState(enabled);
+  chrome.storage.local.set({ extensionEnabled: enabled });
 });
 
 toggle.addEventListener('change', () => {

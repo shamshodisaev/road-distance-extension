@@ -146,9 +146,15 @@
       background: #22c55e;
       box-shadow: 0 0 6px #22c55e99;
       flex-shrink: 0;
+      transition: background 0.2s, box-shadow 0.2s;
     }
 
-    .reg-info { min-width: 0; }
+    .status-dot.off {
+      background: #30363d;
+      box-shadow: none;
+    }
+
+    .reg-info { min-width: 0; flex: 1; }
 
     .reg-label {
       font-size: 10px;
@@ -157,7 +163,10 @@
       letter-spacing: 0.08em;
       color: #22c55e;
       margin-bottom: 2px;
+      transition: color 0.2s;
     }
+
+    .reg-label.off { color: #6e7681; }
 
     .reg-email {
       font-size: 12px;
@@ -166,6 +175,25 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
+
+    /* Enable toggle in registered card */
+    .enable-toggle {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .enable-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #484f58;
+      transition: color 0.2s;
+    }
+
+    .enable-label.on { color: #22c55e; }
 
     /* Divider */
     .divider {
@@ -297,6 +325,11 @@
     }
 
     #interval-range::-webkit-slider-thumb:hover { transform: scale(1.25); }
+
+    .panel-disabled {
+      opacity: 0.35;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
@@ -324,10 +357,18 @@
   <!-- Shown when registered -->
   <div id="registered-view" style="display:none">
     <div class="registered-card">
-      <div class="status-dot"></div>
+      <div class="status-dot" id="status-dot"></div>
       <div class="reg-info">
-        <div class="reg-label">Active</div>
+        <div class="reg-label" id="reg-label">Active</div>
         <div class="reg-email" id="reg-email"></div>
+      </div>
+      <div class="enable-toggle">
+        <span class="enable-label" id="enable-label">On</span>
+        <label class="toggle">
+          <input type="checkbox" id="enable-toggle" checked />
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
       </div>
     </div>
 
@@ -340,6 +381,7 @@
 
     <div class="divider"></div>
 
+    <div id="features-panel">
     <div class="panel-row">
       <div class="panel-left">
         <span class="panel-title">Auto refresh board</span>
@@ -353,6 +395,7 @@
     </div>
 
     <input type="range" id="interval-range" min="1" max="10" step="0.1" value="2" />
+    </div> <!-- /features-panel -->
   </div>
 
   <script src="popup.js"></script>

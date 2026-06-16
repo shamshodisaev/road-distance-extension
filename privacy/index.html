@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — Cursus</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 48px 24px;
+      background: #0d1117;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 15px;
+      color: #c9d1d9;
+      line-height: 1.7;
+    }
+
+    .wrap {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 48px;
+      text-decoration: none;
+    }
+
+    .logo-mark {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .logo-text {
+      font-size: 18px;
+      font-weight: 700;
+      color: #f1f5f9;
+      letter-spacing: -0.3px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 28px;
+      font-weight: 700;
+      color: #f1f5f9;
+      letter-spacing: -0.5px;
+    }
+
+    .updated {
+      font-size: 13px;
+      color: #6e7681;
+      margin-bottom: 40px;
+    }
+
+    h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #e2e8f0;
+      margin: 36px 0 10px;
+    }
+
+    p { margin: 0 0 14px; }
+
+    ul {
+      margin: 0 0 14px;
+      padding-left: 20px;
+    }
+
+    ul li { margin-bottom: 6px; }
+
+    a { color: #3b82f6; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .divider {
+      height: 1px;
+      background: #21262d;
+      margin: 40px 0;
+    }
+
+    .contact {
+      background: #161b22;
+      border: 1px solid #21262d;
+      border-radius: 10px;
+      padding: 20px 24px;
+    }
+
+    .contact p { margin: 0; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="logo" href="#">
+      <div class="logo-mark">C</div>
+      <span class="logo-text">Cursus</span>
+    </a>
+
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated: June 2026</p>
+
+    <p>Cursus is a Chrome extension that enhances the Amazon Relay load board experience. This policy explains what information we collect, how we use it, and how it is stored.</p>
+
+    <h2>What we collect</h2>
+    <p>When you register the extension, we collect:</p>
+    <ul>
+      <li><strong>Work email address</strong> — required to activate the extension</li>
+      <li><strong>Company name</strong> — optional, provided at your discretion</li>
+      <li><strong>Device ID</strong> — a randomly generated identifier created locally on your device, used to associate your registration with a specific installation</li>
+      <li><strong>Extension version</strong> — recorded when you register and on subsequent sessions</li>
+      <li><strong>Last seen timestamp</strong> — updated each time the extension starts, used to understand whether the extension is actively being used</li>
+    </ul>
+
+    <p>We do <strong>not</strong> collect:</p>
+    <ul>
+      <li>Browsing history or URLs visited</li>
+      <li>Load board data, freight rates, or any content from the pages you visit</li>
+      <li>Location data</li>
+      <li>Payment card information (handled entirely by Stripe — see below)</li>
+    </ul>
+
+    <h2>How we use it</h2>
+    <ul>
+      <li>To verify that your installation is registered before enabling extension features</li>
+      <li>To monitor active usage and understand how many users are using the extension</li>
+      <li>To contact you about subscription status if you have a paid plan</li>
+    </ul>
+
+    <h2>Where it's stored</h2>
+    <p>Registration data is stored in a <strong>Cloudflare D1</strong> SQLite database hosted on Cloudflare's infrastructure. Cloudflare's privacy practices are described at <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">cloudflare.com/privacypolicy</a>.</p>
+    <p>Distance calculation requests are proxied through a Cloudflare Worker to the <strong>OpenRouteService</strong> API. Address text from load cards is sent to this service to compute road distances. No identifying information is attached to these requests. OpenRouteService's privacy policy is at <a href="https://openrouteservice.org/privacy-policy/" target="_blank" rel="noopener">openrouteservice.org</a>.</p>
+
+    <h2>Payments</h2>
+    <p>If you are on a paid plan, payments are processed by <strong>Stripe</strong>. We do not store or have access to your payment card details. Stripe's privacy policy is at <a href="https://stripe.com/privacy" target="_blank" rel="noopener">stripe.com/privacy</a>.</p>
+
+    <h2>Data sharing</h2>
+    <p>We do not sell, rent, or share your personal information with third parties, except as required to provide the service (Cloudflare for hosting, Stripe for payments, OpenRouteService for routing) or as required by law.</p>
+
+    <h2>Data retention</h2>
+    <p>Registration data is retained for as long as your account is active. You may request deletion of your data at any time by contacting us at the address below.</p>
+
+    <h2>Your rights</h2>
+    <p>You may request to access, correct, or delete the personal data we hold about you at any time. To do so, contact us using the details below.</p>
+
+    <h2>Changes to this policy</h2>
+    <p>We may update this policy from time to time. The "Last updated" date at the top of this page reflects when changes were last made. Continued use of the extension after changes constitutes acceptance of the updated policy.</p>
+
+    <div class="divider"></div>
+
+    <div class="contact">
+      <p>Questions about this policy? Contact us at <a href="mailto:abdushamshod@gmail.com">abdushamshod@gmail.com</a>.</p>
+    </div>
+  </div>
+</body>
+</html>

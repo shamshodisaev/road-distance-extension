@@ -254,8 +254,9 @@ function findAndProcess(selectors, proxyUrl) {
 // ── Bootstrap ─────────────────────────────────────────────────────────────
 
 async function init() {
-  const { registered } = await chrome.storage.local.get('registered');
-  if (!registered) return;
+  const data = await chrome.storage.local.get(['registered', 'extensionEnabled']);
+  if (!data.registered) return;
+  if (data.extensionEnabled === false) return;
 
   const config = await loadConfig();
   const selectors = resolveSelectors(config);
@@ -270,10 +271,11 @@ async function init() {
   }
 
   let debounce;
-  new MutationObserver(() => {
+  const observer = new MutationObserver(() => {
     clearTimeout(debounce);
     debounce = setTimeout(run, 400);
-  }).observe(document.body, { childList: true, subtree: true });
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
 
   // ── Auto-clicker ─────────────────────────────────────────────────────────
 
@@ -292,28 +294,45 @@ async function init() {
     autoClickTimer = null;
   }
 
+  function stopAll() {
+    stopAutoClick();
+    observer.disconnect();
+    clearTimeout(debounce);
+  }
+
   if (autoClickSelector) {
     chrome.storage.local.get(['autoClickEnabled', 'autoClickInterval'], ({ autoClickEnabled, autoClickInterval }) => {
       if (autoClickEnabled) startAutoClick(autoClickInterval ?? 2);
     });
-
-    chrome.storage.onChanged.addListener((changes, area) => {
-      if (area !== 'local') return;
-      const { autoClickEnabled, autoClickInterval } = changes;
-
-      if (autoClickEnabled?.newValue === false) {
-        stopAutoClick();
-      } else if (autoClickEnabled?.newValue === true) {
-        chrome.storage.local.get('autoClickInterval', ({ autoClickInterval }) => {
-          startAutoClick(autoClickInterval ?? 2);
-        });
-      } else if (autoClickInterval !== undefined) {
-        chrome.storage.local.get('autoClickEnabled', ({ autoClickEnabled }) => {
-          if (autoClickEnabled) startAutoClick(autoClickInterval.newValue);
-        });
-      }
-    });
   }
+
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area !== 'local') return;
+    const { extensionEnabled, autoClickEnabled, autoClickInterval } = changes;
+
+    // Master enable/disable switch.
+    if (extensionEnabled !== undefined) {
+      if (extensionEnabled.newValue === false) {
+        stopAll();
+      }
+      // Re-enabling requires a page reload — content script is already torn down.
+      return;
+    }
+
+    if (!autoClickSelector) return;
+
+    if (autoClickEnabled?.newValue === false) {
+      stopAutoClick();
+    } else if (autoClickEnabled?.newValue === true) {
+      chrome.storage.local.get('autoClickInterval', ({ autoClickInterval }) => {
+        startAutoClick(autoClickInterval ?? 2);
+      });
+    } else if (autoClickInterval !== undefined) {
+      chrome.storage.local.get('autoClickEnabled', ({ autoClickEnabled }) => {
+        if (autoClickEnabled) startAutoClick(autoClickInterval.newValue);
+      });
+    }
+  });
 }
 
 init();
