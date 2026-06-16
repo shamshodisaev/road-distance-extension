@@ -2,10 +2,12 @@
   "name": "track",
   "version": "1.0.0",
   "description": "A Chrome extension that calculates driving road distance between two locations and injects the result into an existing element on any web page. Powered by [OpenRouteService](https://openrouteservice.org/) via a Cloudflare Worker proxy — no API key required for end users.",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "build": "esbuild src/content.js --bundle --outfile=dist/content.js --format=iife --platform=browser",
-    "watch": "esbuild src/content.js --bundle --outfile=dist/content.js --format=iife --platform=browser --watch"
+    "watch": "esbuild src/content.js --bundle --outfile=dist/content.js --format=iife --platform=browser --watch",
+    "package": "npm run build && node scripts/package.js"
   },
   "repository": {
     "type": "git",

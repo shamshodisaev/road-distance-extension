@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Cursus",
   "version": "1.0.0",
-  "description": "Calculates driving road distance between locations marked on any web page.",
+  "description": "Enhances Amazon Relay load boards with verified road distances, deadhead recalculation, and configurable auto-refresh.",
   "permissions": ["storage", "tabs"],
   "background": { "service_worker": "background.js" },
   "host_permissions": [
