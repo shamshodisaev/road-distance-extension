@@ -62,6 +62,9 @@ export function resolveSelectors(config) {
     loadDistance:         validated(r.loadDistance         || defaults.loadDistance,         null),
     units:                r.units                ?? defaults.units,
     loadDistanceThreshold: r.loadDistanceThreshold ?? defaults.loadDistanceThreshold,
-    autoClickSelector:    r.autoClickSelector || config.defaults?.autoClickSelector || null,
+    autoClickSelector:    r.autoClickSelector    || config.defaults?.autoClickSelector    || null,
+    loadCard:             r.loadCard             || defaults.loadCard             || null,
+    loadDetailsContentItem:  r.loadDetailsContentItem  || defaults.loadDetailsContentItem  || null,
+    loadDetailsAddressBlock: r.loadDetailsAddressBlock || defaults.loadDetailsAddressBlock || '.css-w1kk5u',
   };
 }

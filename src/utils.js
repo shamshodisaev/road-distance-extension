@@ -42,3 +42,19 @@ export function fmtDuration(sec) {
 export function fmtDistance(distance, units) {
   return `${distance.toFixed(1)} ${units === 'mi' ? 'mi' : 'km'}`;
 }
+
+// Extracts ordered stop addresses from an array of .load-expander elements.
+// Each expander may contain multiple address blocks (one per stop).
+// Skips first <p> in each block (facility/vendor name), joins remaining non-empty texts.
+// De-duplicates consecutive identical addresses (shared waypoints between segments).
+export function extractStopAddresses(expanderEls, addressBlockSel = '.css-w1kk5u') {
+  const addresses = [];
+  for (const expander of expanderEls) {
+    for (const block of expander.querySelectorAll(addressBlockSel)) {
+      const paras = Array.from(block.querySelectorAll('p'));
+      const addr = paras.slice(1).map(p => p.textContent.trim()).filter(Boolean).join(' ');
+      if (addr) addresses.push(addr);
+    }
+  }
+  return addresses.filter((a, i) => i === 0 || a !== addresses[i - 1]);
+}

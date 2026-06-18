@@ -50,6 +50,37 @@ export async function fetchMatrix(locations, sources, destinations, proxyUrl, ap
   return { distances: json.distances, durations: json.durations };
 }
 
+// Multi-stop route: coords is [origin, stop1, stop2, ...].
+// Returns { segments: [{ distance, duration }, ...] } — one per leg.
+// Reuses the existing /directions Worker endpoint which proxies ORS directions natively.
+export async function fetchRouteWaypoints(coords, proxyUrl, apiKey, units = 'km') {
+  const endpoint = proxyUrl
+    ? `${proxyUrl}/directions`
+    : `${ORS_BASE}/v2/directions/driving-car`;
+  const headers = proxyUrl
+    ? { 'Content-Type': 'application/json', Accept: 'application/json' }
+    : { Authorization: apiKey, 'Content-Type': 'application/json', Accept: 'application/json' };
+
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ coordinates: coords, units }),
+  });
+
+  if (!res.ok) {
+    if (res.status === 429) throw new Error('Rate limit reached — try again in an hour');
+    const body = await res.json().catch(() => null);
+    if (res.status === 400 && body?.error?.code === 2004)
+      throw new Error('Locations are too far apart for routing (>6000 km)');
+    throw new Error(body?.error?.message || `Routing failed (HTTP ${res.status})`);
+  }
+
+  const json = await res.json();
+  const segments = json.routes?.[0]?.segments;
+  if (!segments?.length) throw new Error('No route found');
+  return { segments: segments.map(s => ({ distance: s.distance, duration: s.duration })) };
+}
+
 export async function fetchRoute(from, to, proxyUrl, apiKey, units = 'km') {
   const endpoint = proxyUrl
     ? `${proxyUrl}/directions`

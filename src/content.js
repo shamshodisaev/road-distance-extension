@@ -1,7 +1,7 @@
 import { loadConfig, resolveSelectors, getApiKey } from './config.js';
-import { geocode, fetchRoute, fetchMatrix } from './api.js';
+import { geocode, fetchRoute, fetchMatrix, fetchRouteWaypoints } from './api.js';
 import { setLoading, setResult, setError, appendBadge } from './render.js';
-import { readText, parseCoords, parseExistingDistance, fmtDuration, fmtDistance, haversineKm, preprocessAddress } from './utils.js';
+import { readText, parseCoords, parseExistingDistance, fmtDuration, fmtDistance, haversineKm, preprocessAddress, extractStopAddresses } from './utils.js';
 import * as cache from './cache.js';
 
 // ── Auth / coords helpers ─────────────────────────────────────────────────
@@ -243,8 +243,96 @@ function findAndProcessSimple(selectors, proxyUrl) {
     });
 }
 
+// ── Click-triggered mode ──────────────────────────────────────────────────
+
+// Polls document for selector elements, retrying up to `retries` times.
+async function waitForElements(selector, retries = 5, delayMs = 700) {
+  for (let i = 0; i < retries; i++) {
+    const els = document.querySelectorAll(selector);
+    if (els.length) return Array.from(els);
+    await new Promise(r => setTimeout(r, delayMs));
+  }
+  return [];
+}
+
+// Strips ".load-card " prefix from a selector so it works within a card element.
+function queryInCard(cardEl, sel) {
+  if (!sel) return null;
+  return cardEl.querySelector(sel.replace(/^\.load-card\s+/, ''));
+}
+
+let activeCard = null; // latest clicked card — stale results from earlier clicks are discarded
+
+async function processClickedCard(cardEl, selectors, proxyUrl) {
+  const distEl     = queryInCard(cardEl, selectors.distanceToLoadOrigin);
+  const loadDistEl = queryInCard(cardEl, selectors.loadDistance);
+  if (!distEl) return;
+  if (distEl.dataset.rdcState === 'loading') return;
+
+  activeCard = cardEl;
+  setLoading(distEl);
+  if (loadDistEl) setLoading(loadDistEl);
+
+  try {
+    const originEl = document.querySelector(selectors.origin);
+    const originText = readText(originEl);
+    if (!originText) throw new Error('Origin location not found');
+
+    const expanderEls = await waitForElements(selectors.loadDetailsContentItem, 5, 700);
+    if (!expanderEls.length) throw new Error('Load details not found — try clicking again');
+
+    const stopAddresses = extractStopAddresses(expanderEls, selectors.loadDetailsAddressBlock);
+    if (!stopAddresses.length) throw new Error('No stop addresses found in details');
+
+    const apiKey = await resolveAuth(proxyUrl);
+    const allTexts = [originText, ...stopAddresses.map(preprocessAddress)];
+    const coordResults = await Promise.allSettled(allTexts.map(t => resolveCoords(t, proxyUrl, apiKey)));
+
+    if (coordResults[0].status === 'rejected') throw coordResults[0].reason;
+    const allCoords = coordResults.map((r, i) => {
+      if (r.status === 'rejected') throw new Error(`Address not found: ${allTexts[i]}`);
+      return r.value;
+    });
+
+    if (haversineKm(allCoords[0], allCoords[1]) > 5500) throw new Error('Too far to route');
+    if (activeCard !== cardEl) return;
+
+    const { segments } = await fetchRouteWaypoints(allCoords, proxyUrl, apiKey, selectors.units);
+    if (activeCard !== cardEl) return;
+
+    const dh = segments[0];
+    appendBadge(distEl, `${fmtDistance(dh.distance, selectors.units)} · ~${fmtDuration(dh.duration)}`, 'highlight');
+    distEl.dataset.rdcState = 'done';
+
+    if (loadDistEl && segments.length > 1) {
+      const loadDist = segments.slice(1).reduce((s, seg) => s + seg.distance, 0);
+      const loadDur  = segments.slice(1).reduce((s, seg) => s + seg.duration, 0);
+      const existing = parseExistingDistance(readText(loadDistEl));
+      const diff = existing !== null ? Math.abs(loadDist - existing) : Infinity;
+      if (diff > selectors.loadDistanceThreshold) {
+        appendBadge(loadDistEl, `${fmtDistance(loadDist, selectors.units)} · ~${fmtDuration(loadDur)}`, 'warn');
+        loadDistEl.dataset.rdcState = 'corrected';
+      } else {
+        loadDistEl.dataset.rdcState = 'done';
+      }
+    }
+  } catch (err) {
+    console.error('[RoadDistance]', err);
+    if (activeCard === cardEl) setError(distEl, err.message || 'Could not calculate route');
+  }
+}
+
+function attachLoadCardListeners(selectors, proxyUrl) {
+  document.querySelectorAll(`${selectors.loadCard}:not([data-rdc-listening])`).forEach(cardEl => {
+    cardEl.dataset.rdcListening = 'true';
+    cardEl.addEventListener('click', () => processClickedCard(cardEl, selectors, proxyUrl));
+  });
+}
+
 function findAndProcess(selectors, proxyUrl) {
-  if (selectors.loadOrigin && selectors.distanceToLoadOrigin) {
+  if (selectors.loadCard && selectors.loadDetailsContentItem) {
+    attachLoadCardListeners(selectors, proxyUrl);
+  } else if (selectors.loadOrigin && selectors.distanceToLoadOrigin) {
     findAndProcessLoads(selectors, proxyUrl);
   } else {
     findAndProcessSimple(selectors, proxyUrl);
